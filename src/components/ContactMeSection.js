@@ -12,12 +12,20 @@ const LandingSection = () => {
     const {isLoading, response, submit} = useSubmit();
     const {onOpen} = useAlertContext();
 
+    useEffect(() => {
+        if (response) {
+            onOpen(response.type, response.message);
+            if (response.type === "success") {
+                formik.resetForm();
+            }
+        }
+    }, [response]);
+
     const formik = useFormik({
         initialValues: {
             firstName: '', email: '', type: 'hireMe', comment: ''
-        }, onSubmit: (values) => {
-            // same shape as initial values
-            console.log(values);
+        }, onSubmit: async (values) => {
+            await submit('', values);
         }, validationSchema: Yup.object({
             firstName: Yup.string().required('Required'),
             email: Yup.string().email('Invalid email address').required('Required'),
@@ -86,7 +94,7 @@ const LandingSection = () => {
                                 <FormErrorMessage>{formik.errors.comment}</FormErrorMessage>
                             }
                         </FormControl>
-                        <Button type="submit" colorScheme="purple" width="full">
+                        <Button type="submit" colorScheme="purple" width="full" isLoading={isLoading}>
                             Submit
                         </Button>
                     </VStack>
